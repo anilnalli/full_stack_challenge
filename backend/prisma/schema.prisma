@@ -1,0 +1,199 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User Model - Base for both Students and Mentors
+model User {
+  id            String     @id @default(cuid())
+  email         String     @unique
+  password      String
+  firstName     String
+  lastName      String
+  role          String     @default("STUDENT")
+  avatar        String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  // Relations
+  studentProfile StudentProfile?
+  mentorProfile  MentorProfile?
+  activities     Activity[]
+
+  @@map("users")
+}
+
+// Student Profile
+model StudentProfile {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  totalStudyTime  Int       @default(0) // in minutes
+  currentStreak   Int       @default(0) // in days
+  lastActivityAt  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  enrollments     Enrollment[]
+  recommendations StudentRecommendation[]
+
+  @@map("student_profiles")
+}
+
+// Mentor Profile
+model MentorProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialty String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  mentorStudents MentorStudent[]
+
+  @@map("mentor_profiles")
+}
+
+// Mentor-Student relationship
+model MentorStudent {
+  id        String         @id @default(cuid())
+  mentorId  String
+  mentor    MentorProfile  @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  studentId String
+  createdAt DateTime       @default(now())
+
+  @@unique([mentorId, studentId])
+  @@map("mentor_students")
+}
+
+// Course
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  totalLessons Int    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  sections   Section[]
+  enrollments Enrollment[]
+  activities Activity[]
+
+  @@map("courses")
+}
+
+// Section within a course
+model Section {
+  id        String   @id @default(cuid())
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title     String
+  order     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  lessons Lesson[]
+
+  @@map("sections")
+}
+
+// Lesson within a section
+model Lesson {
+  id          String   @id @default(cuid())
+  sectionId   String
+  section     Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  duration    Int      // in minutes
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  lessonProgress LessonProgress[]
+  activities     Activity[]
+
+  @@map("lessons")
+}
+
+// Student Enrollment in Course
+model Enrollment {
+  id                String    @id @default(cuid())
+  studentId         String
+  student           StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courseId          String
+  course            Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  status            String @default("IN_PROGRESS")
+  enrolledAt        DateTime  @default(now())
+  completedAt       DateTime?
+  totalTimeSpent    Int       @default(0) // in minutes
+  completionPercent Float     @default(0)
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  lessonProgress LessonProgress[]
+
+  @@unique([studentId, courseId])
+  @@map("enrollments")
+}
+
+// Student Progress on Individual Lesson
+model LessonProgress {
+  id            String    @id @default(cuid())
+  enrollmentId  String
+  enrollment    Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lessonId      String
+  lesson        Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  status        String @default("NOT_STARTED")
+  startedAt     DateTime?
+  completedAt   DateTime?
+  timeSpent     Int       @default(0) // in minutes
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([enrollmentId, lessonId])
+  @@map("lesson_progress")
+}
+
+// Activity Events
+model Activity {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId  String?
+  course    Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  lessonId  String?
+  lesson    Lesson?  @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  type      String
+  metadata  String? // JSON string for additional data
+  timestamp DateTime @default(now())
+
+  @@index([userId])
+  @@index([timestamp])
+  @@map("activities")
+}
+
+// Recommendation
+model StudentRecommendation {
+  id        String   @id @default(cuid())
+  studentId String
+  student   StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  lessonId  String
+  reason    String // e.g., "incomplete_lesson", "least_completed_course"
+  priority  Int      @default(0)
+  createdAt DateTime @default(now())
+  viewedAt  DateTime?
+
+  @@map("student_recommendations")
+}

@@ -1,0 +1,36 @@
+{
+  "name": "student-learning-analytics-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --fix"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^6.20.0",
+    "@tanstack/react-query": "^5.28.0",
+    "axios": "^1.6.5",
+    "react-hook-form": "^7.48.0",
+    "zod": "^3.22.4",
+    "@hookform/resolvers": "^3.3.4",
+    "@mui/material": "^5.14.0",
+    "@mui/icons-material": "^5.14.0",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "recharts": "^2.10.3",
+    "dayjs": "^1.11.10",
+    "lucide-react": "^0.308.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.0.8",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0"
+  }
+}

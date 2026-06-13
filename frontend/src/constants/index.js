@@ -1,0 +1,20 @@
+/**
+ * Frontend Types
+ */
+
+export const USER_ROLES = {
+  STUDENT: 'STUDENT',
+  MENTOR: 'MENTOR',
+};
+
+export const PROGRESS_STATUS = {
+  NOT_STARTED: 'NOT_STARTED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+};
+
+export const ENROLLMENT_STATUS = {
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  ABANDONED: 'ABANDONED',
+};
