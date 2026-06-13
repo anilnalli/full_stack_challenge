@@ -40,7 +40,12 @@ const ProtectedRoute = ({ children, requiredRole = null }) => {
 
   if (isLoading) return <div>Loading...</div>;
   if (!user) return <Navigate to="/login" />;
-  if (requiredRole && user.role !== requiredRole) return <Navigate to="/dashboard" />;
+
+  // If role restricted and user doesn't match, redirect to their own dashboard
+  if (requiredRole && user.role !== requiredRole) {
+    const fallback = user.role === 'MENTOR' ? '/mentor-dashboard' : '/dashboard';
+    return <Navigate to={fallback} replace />;
+  }
 
   return children;
 };
@@ -73,6 +78,14 @@ function App() {
               {/* Mentor Routes */}
               <Route
                 path="/mentor-dashboard"
+                element={
+                  <ProtectedRoute requiredRole="MENTOR">
+                    <MentorDashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/students"
                 element={
                   <ProtectedRoute requiredRole="MENTOR">
                     <MentorDashboardPage />

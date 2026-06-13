@@ -1,5 +1,6 @@
-import { Box, Grid, Typography, CircularProgress, Alert, Button } from '@mui/material';
-import { StatCard } from '../components/ui/Cards';
+import { Box, Grid, Typography, CircularProgress, Alert } from '@mui/material';
+import { StatCard, ProgressCard } from '../components/ui/Cards';
+import { LineChartComponent, AreaChartComponent } from '../components/charts/Charts';
 import { useGetMentorDashboard } from '../hooks/useAPI';
 import { MainLayout } from '../components/layout/MainLayout';
 import { Users, TrendingUp, AlertTriangle, Award } from 'lucide-react';
@@ -66,6 +67,28 @@ export const MentorDashboardPage = () => {
           />
         </Grid>
       </Grid>
+      {/* Progress & Charts */}
+      <Grid container spacing={2} sx={{ mb: 4 }}>
+        <Grid item xs={12} md={6}>
+          <ProgressCard
+            title="Students Progress Overview"
+            value={Math.round(dashboard?.averageCompletion || 0)}
+            total={100}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <AreaChartComponent
+            title="Top Students Average Completion"
+            data={
+              (dashboard?.studentMetrics || []).slice(0, 8).map((s) => ({
+                name: s.studentId ? s.studentId.substring(0, 8) : 'student',
+                value: s.averageCompletion || 0,
+              }))
+            }
+            dataKey="value"
+          />
+        </Grid>
+      </Grid>
 
       {/* Students List */}
       <Box sx={{ background: '#fff', borderRadius: 1, overflow: 'auto' }}>
@@ -82,11 +105,11 @@ export const MentorDashboardPage = () => {
             </tr>
           </thead>
           <tbody>
-            {dashboard.studentMetrics?.map((student, index) => (
+            {(dashboard.studentMetrics || []).map((student, index) => (
               <tr key={index} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ padding: 12 }}>{student.studentId.substring(0, 8)}</td>
-                <td style={{ padding: 12 }}>{student.enrolledCourses}</td>
-                <td style={{ padding: 12 }}>{student.completedCourses}</td>
+                <td style={{ padding: 12 }}>{(student.studentId || '').substring(0, 8)}</td>
+                <td style={{ padding: 12 }}>{student.enrolledCourses || 0}</td>
+                <td style={{ padding: 12 }}>{student.completedCourses || 0}</td>
                 <td style={{ padding: 12 }}>
                   <span style={{
                     background: student.averageCompletion >= 80 ? '#4caf50' : student.averageCompletion >= 50 ? '#ff9800' : '#f44336',
@@ -94,7 +117,7 @@ export const MentorDashboardPage = () => {
                     padding: '4px 8px',
                     borderRadius: 4,
                   }}>
-                    {student.averageCompletion}%
+                    {student.averageCompletion || 0}%
                   </span>
                 </td>
               </tr>
@@ -102,6 +125,7 @@ export const MentorDashboardPage = () => {
           </tbody>
         </table>
       </Box>
+      {/* Debug panel removed */}
     </MainLayout>
   );
 };

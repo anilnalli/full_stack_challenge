@@ -20,8 +20,6 @@ const studentMenuItems = [
 
 const mentorMenuItems = [
   { title: 'Dashboard', path: '/mentor-dashboard', icon: DashboardIcon },
-  { title: 'Students', path: '/students', icon: PeopleIcon },
-  { title: 'Courses', path: '/courses', icon: SchoolIcon },
 ];
 
 export const Sidebar = () => {
